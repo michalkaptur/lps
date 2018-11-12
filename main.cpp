@@ -14,72 +14,70 @@ bool is_palindrome(const std::string& s) {
         }
         std::advance(begin, 1);
         std::advance(end, 1);
-        // fixme: could stop in the middle
     }
     return true;
 }
 
-std::size_t longest_even_palindrome_substring(const auto center_it, const std::string& input){
+bool update_score(std::size_t& benchmark, const auto left, const auto right)
+{
+    std::string candidate(left, right);
+    if (is_palindrome(candidate)){
+        benchmark = std::max(benchmark, candidate.length());
+        return true;
+    }
+    return false;
+}
+
+std::size_t longest_even_palindrome_substring(const auto cursor, const std::string& input){
     std::size_t benchmark = 0;
-    if (std::next(center_it) == input.end()){
+    if (std::next(cursor) == input.end()){
         return benchmark;
     }
 
-    auto left = center_it;
-    auto right = std::next(center_it, 2);
+    auto left = cursor;
+    auto right = std::next(cursor, 2);
 
     if (left == input.begin() or right == input.end()){
-        std::string candidate(left, right);
-        return std::max(benchmark, candidate.length());
+        update_score(benchmark, left, right);
+        return benchmark;
     }
 
     do {
-        std::string candidate(left, right);
-        if (is_palindrome(candidate)){
-            benchmark = std::max(benchmark, candidate.length());
-        } else {
+        if (not update_score(benchmark, left, right)){
             break;
         }
         std::advance(right, 1);
         std::advance(left, -1);
     }
     while(right != input.end() and left != input.begin());
-    std::string candidate(left, right);
-    if (is_palindrome(candidate)){
-        benchmark = std::max(benchmark, candidate.length());
-    }
+    update_score(benchmark, left, right);
     return benchmark;
 }
 
-std::size_t longest_odd_palindrome_substring(const auto center_it, const std::string& input){
+std::size_t longest_odd_palindrome_substring(const auto cursor, const std::string& input){
     std::size_t benchmark = 0;
-    auto left = center_it;
+    auto left = cursor;
     if (left == input.end())
     {
         return benchmark;
     }
 
-    auto right = std::next(center_it, 1);
+    auto right = std::next(cursor, 1);
     if (right == input.end()){
         return 1;
     }
 
 
     do {
-        std::string candidate(left, right);
-        if (is_palindrome(candidate)){
-            benchmark = std::max(benchmark, candidate.length());
-        } else {
+        if (not update_score(benchmark, left, right))
+        {
             break;
         }
         std::advance(right, 1);
         std::advance(left, -1);
     }
     while(right != input.end() and left != input.begin());
-    std::string candidate(left, right);
-    if (is_palindrome(candidate)){
-        benchmark = std::max(benchmark, candidate.length());
-    }
+    update_score(benchmark, left, right);
     return benchmark;
 }
 
