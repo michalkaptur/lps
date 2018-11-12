@@ -6,3 +6,8 @@ project(palindrome_substring)
 set(src main.cpp longest_palindrome_substring.cpp longest_palindrome_substring.hpp)
 add_executable(${PROJECT_NAME} ${src})
 
+add_executable(lps_benchmark longest_palindrome_substring.cpp longest_palindrome_substring.hpp benchmark.cpp)
+find_package(benchmark REQUIRED CONFIG) #set CMAKE_PREFIX_PATH to benchmark dir
+target_link_libraries(lps_benchmark PUBLIC benchmark::benchmark)
+
+
