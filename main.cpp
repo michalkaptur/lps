@@ -5,11 +5,6 @@
 #define CATCH_CONFIG_MAIN
 #include "externals/catch.hpp"
 
-auto to_forward_it(const auto reverse_it) {
-    return std::next(reverse_it.base());
-//    return reverse_it.base();
-}
-
 bool is_palindrome(const std::string& s) {
     auto begin = s.begin();
     auto end = s.rbegin();
@@ -24,29 +19,50 @@ bool is_palindrome(const std::string& s) {
     return true;
 }
 
+std::size_t longest_even_palindrome_substring(const auto center_it, const std::string& input){
+    std::size_t benchmark = 0;
+    if (std::next(center_it) == input.end()){
+        return benchmark;
+    }
+
+    auto left = center_it;
+    auto right = std::next(center_it, 2);
+
+    if (left == input.begin() or right == input.end()){
+        std::string candidate(left, right);
+        return std::max(benchmark, candidate.length());
+    }
+
+    do {
+        std::string candidate(left, right);
+        if (is_palindrome(candidate)){
+            benchmark = std::max(benchmark, candidate.length());
+        } else {
+            break;
+        }
+        std::advance(right, 1);
+        std::advance(left, -1);
+    }
+    while(right != input.end() and left != input.begin());
+    std::string candidate(left, right);
+    if (is_palindrome(candidate)){
+        benchmark = std::max(benchmark, candidate.length());
+    }
+    return benchmark;
+}
+
+std::size_t longest_odd_palindrome_substring(const auto center_it, const std::string& input){
+    return 0;
+}
+
+
+
 unsigned longest_palindrome_substring(const std::string& input) {
     std::size_t benchmark = input.empty() ? 0 : 1;
     auto center = input.begin();
     while (center != input.end()) {
-        auto left = center;
-        auto right = std::next(center);
-        do {
-            std::advance(left, -1);
-            std::advance(right, 1);
-            std::string candidate_odd(left, right);
-            std::string candidate_even(left-1, right);
-            if (is_palindrome(candidate_odd)) {
-                benchmark = std::max(benchmark, candidate_odd.length());
-            }
-            else if (is_palindrome(candidate_even)) {
-                benchmark = std::max(benchmark, candidate_even.length());
-            }
-            else {
-                break;
-            }
-        }
-        while (std::reverse_iterator(left) != input.rend() && right != input.end());
-
+        benchmark = std::max(benchmark, longest_odd_palindrome_substring(center, input));
+        benchmark = std::max(benchmark, longest_even_palindrome_substring(center, input));
         std::advance(center, 1);
     }
     return benchmark;
@@ -54,11 +70,12 @@ unsigned longest_palindrome_substring(const std::string& input) {
 
 TEST_CASE("found longest palindrome", "[palindrome]") {
     REQUIRE(longest_palindrome_substring("") == 0);
-//    REQUIRE(longest_palindrome_substring("a") == 1);
-    REQUIRE(longest_palindrome_substring("abcba") == 5);
     REQUIRE(longest_palindrome_substring("abba") == 4);
     REQUIRE(longest_palindrome_substring("aa") == 2);
-    REQUIRE(longest_palindrome_substring("12345abcba6789") == 6);
+    REQUIRE(longest_palindrome_substring("1234xxyybbbbyyxx12") == 12);
+//    REQUIRE(longest_palindrome_substring("a") == 1);
+//    REQUIRE(longest_palindrome_substring("abcba") == 5);
+//    REQUIRE(longest_palindrome_substring("12345abcba6789") == 6);
 }
 
 TEST_CASE("check if is palindrome", "[palindrome]")
